@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="glass-panel p-5">
+            <h2 class="fw-bold mb-4 text-dark">
+                {% if teacher %}
+                    <i class="fa-solid fa-user-pen me-2 text-primary"></i>Edit Teacher: {{ teacher.name }}
+                {% else %}
+                    <i class="fa-solid fa-user-plus me-2 text-primary"></i>Add New Teacher
+                {% endif %}
+            </h2>
+            <hr class="mb-4">
+            
+            <form method="POST">
+                <!-- Credentials Section -->
+                <h5 class="fw-bold text-secondary mb-3"><i class="fa-solid fa-key me-1"></i> User Credentials</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="username">Username</label>
+                        <input type="text" id="username" name="username" class="form-control form-control-premium" 
+                               value="{{ teacher.user.username if teacher else '' }}" 
+                               placeholder="e.g. sconnor" 
+                               {% if teacher %}readonly{% else %}required{% endif %}>
+                        {% if teacher %}
+                            <small class="text-muted">Username cannot be altered.</small>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="password">Password</label>
+                        <input type="password" id="password" name="password" class="form-control form-control-premium" 
+                               placeholder="{% if teacher %}Leave blank to keep current{% else %}Password123{% endif %}" 
+                               {% if not teacher %}required{% endif %}>
+                    </div>
+                </div>
+                
+                <!-- Profile Section -->
+                <h5 class="fw-bold text-secondary mb-3"><i class="fa-solid fa-address-card me-1"></i> Professional Profile Details</h5>
+                <div class="mb-4">
+                    <label class="form-label fw-semibold" for="name">Full Name</label>
+                    <input type="text" id="name" name="name" class="form-control form-control-premium" 
+                           value="{{ teacher.name if teacher else '' }}" placeholder="e.g. Dr. Sarah Connor" required>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="subject">Specialization / Subject Taught</label>
+                        <input type="text" id="subject" name="subject" class="form-control form-control-premium" 
+                               value="{{ teacher.subject if teacher else '' }}" placeholder="e.g. Mathematics, Physics" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="phone">Contact Phone</label>
+                        <input type="text" id="phone" name="phone" class="form-control form-control-premium" 
+                               value="{{ teacher.phone if teacher else '' }}" placeholder="e.g. +1-555-0199" required>
+                    </div>
+                </div>
+
+                <!-- Action buttons -->
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a href="{{ url_for('academic.teachers_list') }}" class="btn btn-outline-secondary px-4 py-2">Cancel</a>
+                    <button type="submit" class="btn btn-premium px-4 py-2">
+                        <i class="fa-solid fa-circle-check me-1"></i> Save Teacher Record
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

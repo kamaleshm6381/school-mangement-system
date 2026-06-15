@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Classes Directory{% endblock %}
+
+{% block content %}
+<div class="glass-panel p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+        <div>
+            <h2 class="fw-bold mb-1 text-dark"><i class="fa-solid fa-school me-2 text-primary"></i>Classes Directory</h2>
+            <p class="text-muted mb-0">Manage and view academic classes and assignments</p>
+        </div>
+        {% if current_user.role.name == 'Principal' %}
+        <a href="{{ url_for('academic.class_add') }}" class="btn btn-premium mt-2 mt-sm-0">
+            <i class="fa-solid fa-plus me-1"></i> Add Class
+        </a>
+        {% endif %}
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-premium w-100">
+            <thead>
+                <tr>
+                    <th>Class ID</th>
+                    <th>Class Name</th>
+                    <th>Section</th>
+                    <th>Class Teacher</th>
+                    <th>Student Count</th>
+                    {% if current_user.role.name == 'Principal' %}
+                        <th class="text-end">Actions</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% if classes %}
+                    {% for cls in classes %}
+                        <tr>
+                            <td><span class="badge bg-secondary">#{{ cls.id }}</span></td>
+                            <td><strong>{{ cls.class_name }}</strong></td>
+                            <td><span class="badge bg-info text-dark">{{ cls.section }}</span></td>
+                            <td>
+                                {% if cls.teacher %}
+                                    <span class="fw-semibold text-primary">{{ cls.teacher.name }}</span> ({{ cls.teacher.subject }})
+                                {% else %}
+                                    <span class="badge bg-light text-muted">No Teacher Assigned</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-success">{{ cls.students|length }} Registered</span>
+                            </td>
+                            {% if current_user.role.name == 'Principal' %}
+                                <td class="text-end">
+                                    <a href="{{ url_for('academic.class_edit', id=cls.id) }}" class="btn btn-sm btn-outline-primary me-1" title="Edit Class">
+                                        <i class="fa-solid fa-pen-to-square"></i>
+                                    </a>
+                                    <a href="{{ url_for('academic.class_delete', id=cls.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete class {{ cls.class_name }}? Students assigned to this class will be unassigned.');" title="Delete Class">
+                                        <i class="fa-solid fa-trash"></i>
+                                    </a>
+                                </td>
+                            {% endif %}
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" class="text-center py-5">
+                            <i class="fa-solid fa-folder-open fs-1 text-muted mb-3 d-block"></i>
+                            <span class="text-muted">No classes found.</span>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

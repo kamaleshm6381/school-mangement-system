@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Mark Attendance{% endblock %}
+
+{% block content %}
+<div class="glass-panel p-4">
+    <div class="mb-4">
+        <h2 class="fw-bold mb-1 text-dark"><i class="fa-solid fa-calendar-check me-2 text-success"></i>Attendance Registry</h2>
+        <p class="text-muted mb-0">Record and update student attendance logs</p>
+    </div>
+
+    <!-- Filter Form (GET method) -->
+    <form method="GET" action="{{ url_for('attendance.mark_attendance') }}" class="row g-3 align-items-end mb-4 bg-light p-3 rounded-3 shadow-sm border border-white">
+        <div class="col-md-5">
+            <label class="form-label fw-bold" for="class_id">Select Class</label>
+            <select name="class_id" id="class_id" class="form-select form-control-premium" required>
+                <option value="" disabled {% if not selected_class_id %}selected{% endif %}>Choose Class...</option>
+                {% for cls in classes %}
+                    <option value="{{ cls.id }}" {% if selected_class_id == cls.id %}selected{% endif %}>
+                        {{ cls.class_name }} - {{ cls.section }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-5">
+            <label class="form-label fw-bold" for="date">Select Date</label>
+            <input type="date" name="date" id="date" class="form-control form-control-premium" value="{{ selected_date_str }}" required>
+        </div>
+        <div class="col-md-2 d-grid">
+            <button type="submit" class="btn btn-premium py-2">
+                <i class="fa-solid fa-magnifying-glass me-1"></i> Load Class
+            </button>
+        </div>
+    </form>
+
+    <!-- Roster and Mark Form (POST method) -->
+    {% if selected_class_id %}
+        {% if students %}
+            <form method="POST" action="{{ url_for('attendance.mark_attendance') }}">
+                <input type="hidden" name="class_id" value="{{ selected_class_id }}">
+                <input type="hidden" name="date" value="{{ selected_date_str }}">
+
+                <div class="table-responsive mb-4">
+                    <table class="table table-premium w-100">
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Department</th>
+                                <th class="text-center" style="width: 45%;">Mark Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for student in students %}
+                                {% set status = existing_attendance.get(student.id, 'Present') %}
+                                <tr>
+                                    <td><strong>{{ student.name }}</strong></td>
+                                    <td><span class="badge bg-secondary">{{ student.department }}</span></td>
+                                    <td>
+                                        <div class="d-flex justify-content-around bg-light p-2 rounded-3 border">
+                                            <div class="form-check form-check-inline mb-0">
+                                                <input class="form-check-input" type="radio" name="status_{{ student.id }}" id="present_{{ student.id }}" value="Present" {% if status == 'Present' %}checked{% endif %}>
+                                                <label class="form-check-label text-success fw-bold" for="present_{{ student.id }}"><i class="fa-solid fa-circle-check me-1"></i>Present</label>
+                                            </div>
+                                            <div class="form-check form-check-inline mb-0">
+                                                <input class="form-check-input" type="radio" name="status_{{ student.id }}" id="late_{{ student.id }}" value="Late" {% if status == 'Late' %}checked{% endif %}>
+                                                <label class="form-check-label text-warning fw-bold" for="late_{{ student.id }}"><i class="fa-solid fa-clock me-1"></i>Late</label>
+                                            </div>
+                                            <div class="form-check form-check-inline mb-0">
+                                                <input class="form-check-input" type="radio" name="status_{{ student.id }}" id="absent_{{ student.id }}" value="Absent" {% if status == 'Absent' %}checked{% endif %}>
+                                                <label class="form-check-label text-danger fw-bold" for="absent_{{ student.id }}"><i class="fa-solid fa-circle-xmark me-1"></i>Absent</label>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="submit" class="btn btn-premium px-5 py-2">
+                        <i class="fa-solid fa-cloud-arrow-up me-1"></i> Submit Attendance Register
+                    </button>
+                </div>
+            </form>
+        {% else %}
+            <div class="text-center py-5">
+                <i class="fa-solid fa-users-slash fs-1 text-muted mb-3 d-block"></i>
+                <h5 class="text-muted">No students registered in this class.</h5>
+                <a href="{{ url_for('academic.student_add') }}" class="btn btn-outline-primary mt-2">Add Students</a>
+            </div>
+        {% endif %}
+    {% else %}
+        <div class="text-center py-5">
+            <i class="fa-solid fa-hand-pointer fs-1 text-muted mb-3 d-block"></i>
+            <h5 class="text-muted">Please select a class and date above to load the roster.</h5>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

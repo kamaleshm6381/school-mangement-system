@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}School Portal{% endblock %} - Soma Velas Primary School</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome 6 Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom Theme Styles -->
+    <link href="{{ url_for('static', filename='css/portal.css') }}" rel="stylesheet">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-premium py-3 mb-4 shadow-sm">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('root') }}">
+                <i class="fa-solid fa-graduation-cap me-2 fs-3"></i>
+                <span>Soma Velas Primary School</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto align-items-center gap-1">
+                    {% if current_user %}
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-premium d-flex align-items-center" href="{{ url_for('home') }}">
+                                <i class="fa-solid fa-chart-pie me-1"></i> Dashboard
+                            </a>
+                        </li>
+                        
+                        {% if current_user.role.name in ['Principal', 'Teacher', 'Student Representative'] %}
+                            <li class="nav-item">
+                                <a class="nav-link nav-link-premium d-flex align-items-center" href="{{ url_for('academic.students_list') }}">
+                                    <i class="fa-solid fa-user-graduate me-1"></i> Students
+                                </a>
+                            </li>
+                        {% endif %}
+                        
+                        {% if current_user.role.name in ['Principal', 'Teacher'] %}
+                            <li class="nav-item">
+                                <a class="nav-link nav-link-premium d-flex align-items-center" href="{{ url_for('academic.teachers_list') }}">
+                                    <i class="fa-solid fa-chalkboard-user me-1"></i> Teachers
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-premium d-flex align-items-center" href="{{ url_for('academic.classes_list') }}">
+                                <i class="fa-solid fa-school me-1"></i> Classes
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-premium d-flex align-items-center" href="{{ url_for('academic.results_list') }}">
+                                <i class="fa-solid fa-square-poll-vertical me-1"></i> Results
+                            </a>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link nav-link-premium dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fa-solid fa-calendar-check me-1"></i> Attendance
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark border-0 shadow-lg mt-2" aria-labelledby="navbarDropdown" style="background: rgba(30, 27, 75, 0.95); backdrop-filter: blur(8px);">
+                                {% if current_user.role.name in ['Principal', 'Teacher'] %}
+                                    <li>
+                                        <a class="dropdown-item py-2" href="{{ url_for('attendance.mark_attendance') }}">
+                                            <i class="fa-solid fa-pen-to-square me-2 text-primary"></i> Mark Attendance
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                {% if current_user.role.name in ['Principal', 'Teacher', 'Student Representative'] %}
+                                    <li>
+                                        <a class="dropdown-item py-2" href="{{ url_for('attendance.attendance_report') }}">
+                                            <i class="fa-solid fa-chart-line me-2 text-success"></i> Attendance Report
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                {% if current_user.role.name in ['Student', 'Student Representative'] and current_user.student_profile %}
+                                    <li>
+                                        <a class="dropdown-item py-2" href="{{ url_for('attendance.student_attendance', student_id=current_user.student_profile.id) }}">
+                                            <i class="fa-solid fa-user-check me-2 text-info"></i> My Attendance
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </li>
+
+                        <li class="nav-item dropdown">
+                            <a class="nav-link nav-link-premium dropdown-toggle d-flex align-items-center" href="#" id="navbarAnnouncementsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fa-solid fa-bullhorn me-1"></i> Announcements
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-dark border-0 shadow-lg mt-2" aria-labelledby="navbarAnnouncementsDropdown" style="background: rgba(30, 27, 75, 0.95); backdrop-filter: blur(8px);">
+                                <li>
+                                    <a class="dropdown-item py-2" href="{{ url_for('announcements.list_announcements') }}">
+                                        <i class="fa-solid fa-list me-2 text-info"></i> Bulletin Board
+                                    </a>
+                                </li>
+                                {% if has_permission('create_announcement') %}
+                                    <li>
+                                        <a class="dropdown-item py-2" href="{{ url_for('announcements.create_announcement') }}">
+                                            <i class="fa-solid fa-plus me-2 text-primary"></i> Create Announcement
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                {% if current_user.role.name in ['Principal', 'Teacher'] %}
+                                    <li>
+                                        <a class="dropdown-item py-2" href="{{ url_for('announcements.manage_announcements') }}">
+                                            <i class="fa-solid fa-clipboard-check me-2 text-success"></i> Manage Board
+                                        </a>
+                                    </li>
+                                {% endif %}
+                            </ul>
+                        </li>
+
+                        <li class="nav-item ms-lg-3">
+                            <div class="dropdown">
+                                <a class="btn btn-premium px-3 py-2 d-flex align-items-center dropdown-toggle" href="#" role="button" id="userMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fa-solid fa-user me-2"></i> {{ current_user.username }}
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-dark border-0 shadow-lg mt-2" aria-labelledby="userMenuLink" style="background: rgba(30, 27, 75, 0.95); backdrop-filter: blur(8px);">
+                                    <li>
+                                        <a class="dropdown-item py-2" href="{{ url_for('auth.profile') }}">
+                                            <i class="fa-solid fa-id-card me-2 text-info"></i> My Profile
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider bg-secondary"></li>
+                                    <li>
+                                        <a class="dropdown-item py-2" href="{{ url_for('auth.logout') }}">
+                                            <i class="fa-solid fa-right-from-bracket me-2 text-danger"></i> Log Out
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="btn btn-premium px-4" href="{{ url_for('auth.login') }}">
+                                <i class="fa-solid fa-right-to-bracket me-2"></i> Login
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div class="container my-5">
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="row justify-content-center mb-4">
+                    <div class="col-md-10">
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category if category != 'error' else 'danger' }} alert-dismissible fade show shadow-sm border-0" role="alert" style="border-radius: 12px;">
+                                <div class="d-flex align-items-center">
+                                    {% if category == 'success' %}
+                                        <i class="fa-solid fa-circle-check me-2 fs-5"></i>
+                                    {% elif category == 'danger' or category == 'error' %}
+                                        <i class="fa-solid fa-circle-exclamation me-2 fs-5"></i>
+                                    {% elif category == 'warning' %}
+                                        <i class="fa-solid fa-triangle-exclamation me-2 fs-5"></i>
+                                    {% else %}
+                                        <i class="fa-solid fa-circle-info me-2 fs-5"></i>
+                                    {% endif %}
+                                    <div>{{ message }}</div>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Yield Body Content -->
+        <div class="row justify-content-center">
+            <div class="col-12">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

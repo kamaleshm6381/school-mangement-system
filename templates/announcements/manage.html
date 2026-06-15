@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Announcements{% endblock %}
+
+{% block content %}
+<div class="glass-panel p-4 mb-5">
+    <div class="mb-4">
+        <h2 class="fw-bold mb-1 text-dark"><i class="fa-solid fa-clipboard-check me-2 text-warning"></i>Announcements Moderation</h2>
+        <p class="text-muted mb-0">Authorize pending announcement drafts submitted by teachers or representatives</p>
+    </div>
+
+    <!-- Pending Approvals Section -->
+    <h4 class="fw-bold mb-3 text-secondary"><i class="fa-solid fa-hourglass-half me-2"></i>Pending Approval ({{ pending|length }})</h4>
+    <div class="row mb-5">
+        <div class="col-12">
+            {% if pending %}
+                {% for announcement in pending %}
+                    <div class="card shadow-sm border-0 border-start border-warning border-4 mb-3 rounded-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start flex-wrap mb-2">
+                                <h5 class="fw-bold mb-1">{{ announcement.title }}</h5>
+                                <span class="badge {% if announcement.class_id %}bg-info text-dark{% else %}bg-primary{% endif %}">
+                                    {% if announcement.class_id %}
+                                        Class: {{ announcement.class_ }}
+                                    {% else %}
+                                        Global
+                                    {% endif %}
+                                </span>
+                            </div>
+                            <p class="text-secondary small mb-3">{{ announcement.content }}</p>
+                            <div class="d-flex justify-content-between align-items-center flex-wrap pt-2 border-top">
+                                <span class="text-muted small">
+                                    Submitted by <strong>{{ announcement.created_by.username }}</strong> 
+                                    ({{ announcement.created_by.role.name }}) on {{ announcement.created_at.strftime('%Y-%m-%d %H:%M') }}
+                                </span>
+                                <div class="d-flex gap-2 mt-2 mt-sm-0">
+                                    <a href="{{ url_for('announcements.approve_announcement', id=announcement.id) }}" class="btn btn-sm btn-success px-3">
+                                        <i class="fa-solid fa-check me-1"></i> Approve
+                                    </a>
+                                    <a href="{{ url_for('announcements.delete_announcement', id=announcement.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to reject and delete this draft?');">
+                                        <i class="fa-solid fa-trash-can me-1"></i> Reject
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="bg-light p-4 rounded-3 text-center border">
+                    <span class="text-muted"><i class="fa-solid fa-check-circle me-1"></i> No announcements pending authorization. All clear!</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- My Announcements Section -->
+    <h4 class="fw-bold mb-3 text-secondary"><i class="fa-solid fa-user-pen me-2"></i>My Published Announcements ({{ my_announcements|length }})</h4>
+    <div class="table-responsive">
+        <table class="table table-premium w-100">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Target Scope</th>
+                    <th>Date Posted</th>
+                    <th>Status</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if my_announcements %}
+                    {% for announcement in my_announcements %}
+                        <tr>
+                            <td><strong>{{ announcement.title }}</strong></td>
+                            <td>
+                                {% if announcement.class_id %}
+                                    <span class="badge bg-info text-dark">Class: {{ announcement.class_ }}</span>
+                                {% else %}
+                                    <span class="badge bg-primary">Global</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ announcement.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                {% if announcement.status == 'Approved' %}
+                                    <span class="badge bg-success">Approved</span>
+                                {% else %}
+                                    <span class="badge bg-warning text-dark">Pending</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <a href="{{ url_for('announcements.delete_announcement', id=announcement.id) }}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Are you sure you want to delete this announcement?');" title="Delete Announcement">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4">
+                            <span class="text-muted">You haven't posted any announcements yet.</span>
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

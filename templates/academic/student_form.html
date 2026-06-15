@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="glass-panel p-5">
+            <h2 class="fw-bold mb-4 text-dark">
+                {% if student %}
+                    <i class="fa-solid fa-user-pen me-2 text-primary"></i>Edit Student: {{ student.name }}
+                {% else %}
+                    <i class="fa-solid fa-user-plus me-2 text-primary"></i>Add New Student
+                {% endif %}
+            </h2>
+            <hr class="mb-4">
+            
+            <form method="POST">
+                <!-- Account details section -->
+                <h5 class="fw-bold text-secondary mb-3"><i class="fa-solid fa-key me-1"></i> User Credentials</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="username">Username</label>
+                        <input type="text" id="username" name="username" class="form-control form-control-premium" 
+                               value="{{ student.user.username if student else '' }}" 
+                               placeholder="e.g. jconnor" 
+                               {% if student %}readonly{% else %}required{% endif %}>
+                        {% if student %}
+                            <small class="text-muted">Username cannot be altered.</small>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="password">Password</label>
+                        <input type="password" id="password" name="password" class="form-control form-control-premium" 
+                               placeholder="{% if student %}Leave blank to keep current{% else %}Password123{% endif %}" 
+                               {% if not student %}required{% endif %}>
+                    </div>
+                </div>
+                
+                <!-- Profile details section -->
+                <h5 class="fw-bold text-secondary mb-3"><i class="fa-solid fa-address-card me-1"></i> Student Profile Details</h5>
+                <div class="row g-3 mb-4">
+                    <div class="col-md-8">
+                        <label class="form-label fw-semibold" for="name">Full Name</label>
+                        <input type="text" id="name" name="name" class="form-control form-control-premium" 
+                               value="{{ student.name if student else '' }}" placeholder="e.g. John Connor" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold" for="age">Age</label>
+                        <input type="number" id="age" name="age" class="form-control form-control-premium" 
+                               value="{{ student.age if student else '' }}" placeholder="e.g. 16" min="5" max="100">
+                    </div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="department">Department / Major</label>
+                        <input type="text" id="department" name="department" class="form-control form-control-premium" 
+                               value="{{ student.department if student else '' }}" placeholder="e.g. Science, Commerce">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold" for="class_id">Assign Academic Class</label>
+                        <select id="class_id" name="class_id" class="form-select form-control-premium">
+                            <option value="0" {% if not student or not student.class_id %}selected{% endif %}>Unassigned</option>
+                            {% for cls in classes %}
+                                <option value="{{ cls.id }}" {% if student and student.class_id == cls.id %}selected{% endif %}>
+                                    {{ cls.class_name }} - {{ cls.section }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Representative Checkbox -->
+                <div class="mb-4">
+                    <div class="form-check form-switch p-3 bg-light rounded-3 d-inline-block shadow-sm">
+                        <input class="form-check-input ms-0 me-2" type="checkbox" id="is_representative" name="is_representative" 
+                               {% if student and student.is_representative %}checked{% endif %}>
+                        <label class="form-check-label fw-bold text-dark" for="is_representative">
+                            <i class="fa-solid fa-star text-warning me-1"></i> Class Representative (Class Leader)
+                        </label>
+                    </div>
+                    <p class="text-muted small mt-1 mb-0 ms-1">Class representatives gain read access to the general class roster, attendance reports, and can draft class announcements.</p>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a href="{{ url_for('academic.students_list') }}" class="btn btn-outline-secondary px-4 py-2">Cancel</a>
+                    <button type="submit" class="btn btn-premium px-4 py-2">
+                        <i class="fa-solid fa-circle-check me-1"></i> Save Student Record
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}Academic Results - {{ student.name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Student Info Column -->
+    <div class="col-lg-4 mb-4">
+        <div class="glass-panel p-4 text-center">
+            <div class="bg-primary bg-gradient text-white rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 90px; height: 90px; box-shadow: 0 8px 16px rgba(79, 70, 229, 0.25);">
+                <i class="fa-solid fa-graduation-cap fs-2"></i>
+            </div>
+            <h4 class="fw-bold mb-1 text-dark">{{ student.name }}</h4>
+            <span class="badge bg-secondary mb-3">{{ student.department }}</span>
+            <hr>
+            <div class="text-start mt-3">
+                <p class="mb-2"><i class="fa-solid fa-school me-2 text-muted"></i><strong>Class:</strong> {{ student.class_ if student.class_ else 'Unassigned' }}</p>
+                <p class="mb-2"><i class="fa-solid fa-hashtag me-2 text-muted"></i><strong>Student ID:</strong> #{{ student.id }}</p>
+                <p class="mb-2"><i class="fa-solid fa-envelope me-2 text-muted"></i><strong>Username:</strong> {{ student.user.username }}</p>
+                {% if student.is_representative %}
+                    <p class="mb-0 text-warning fw-semibold"><i class="fa-solid fa-star me-2"></i>Class Representative</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Summary Statistics Card -->
+        {% if results %}
+            {% set total_marks = namespace(val=0) %}
+            {% set pass_count = namespace(val=0) %}
+            {% for res in results %}
+                {% set total_marks.val = total_marks.val + res.marks %}
+                {% if res.status == 'Pass' %}
+                    {% set pass_count.val = pass_count.val + 1 %}
+                {% endif %}
+            {% endfor %}
+            {% set average = (total_marks.val / results|length)|round(1) %}
+            
+            <div class="glass-panel p-4 mt-4">
+                <h5 class="fw-bold mb-4 text-dark"><i class="fa-solid fa-square-poll-vertical me-2 text-info"></i>Academic Summary</h5>
+                <div class="row text-center g-3">
+                    <div class="col-6">
+                        <div class="bg-white p-3 rounded-3 border">
+                            <span class="text-muted small d-block">Average Mark</span>
+                            <span class="fs-3 fw-bold text-primary">{{ average }}%</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="bg-white p-3 rounded-3 border">
+                            <span class="text-muted small d-block">Passed Exams</span>
+                            <span class="fs-3 fw-bold text-success">{{ pass_count.val }} / {{ results|length }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Marksheet Grid -->
+    <div class="col-lg-8">
+        <div class="glass-panel p-4">
+            <h4 class="fw-bold mb-4 text-dark"><i class="fa-solid fa-calculator me-2 text-primary"></i>Marksheet Registry</h4>
+            
+            {% if results %}
+                <div class="table-responsive">
+                    <table class="table table-premium w-100">
+                        <thead>
+                            <tr>
+                                <th>Subject</th>
+                                <th>Score</th>
+                                <th>Scale Rating</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for res in results %}
+                                <tr>
+                                    <td><strong>{{ res.subject }}</strong></td>
+                                    <td><span class="fs-5 fw-bold text-primary">{{ res.marks }}</span> / 100</td>
+                                    <td>
+                                        {% if res.marks >= 90 %}
+                                            <span class="badge bg-success">Excellent (A)</span>
+                                        {% elif res.marks >= 75 %}
+                                            <span class="badge bg-info text-dark">Very Good (B)</span>
+                                        {% elif res.marks >= 50 %}
+                                            <span class="badge bg-warning text-dark">Good (C)</span>
+                                        {% elif res.marks >= 40 %}
+                                            <span class="badge bg-secondary">Pass (D)</span>
+                                        {% else %}
+                                            <span class="badge bg-danger">Fail (F)</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if res.status == 'Pass' %}
+                                            <span class="text-success"><i class="fa-solid fa-circle-check me-1"></i>Pass</span>
+                                        {% else %}
+                                            <span class="text-danger"><i class="fa-solid fa-circle-xmark me-1"></i>Fail</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fa-solid fa-file-excel fs-1 text-muted mb-3 d-block"></i>
+                    <span class="text-muted">No academic records found for this student.</span>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="glass-panel p-5">
+            <h2 class="fw-bold mb-4 text-dark">
+                {% if result %}
+                    <i class="fa-solid fa-pen-to-square me-2 text-primary"></i>Edit Student Exam Grade
+                {% else %}
+                    <i class="fa-solid fa-file-signature me-2 text-primary"></i>Upload Exam Grade
+                {% endif %}
+            </h2>
+            <hr class="mb-4">
+            
+            <form method="POST">
+                <!-- Student Selection -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold" for="student_id">Select Student</label>
+                    <select id="student_id" name="student_id" class="form-select form-control-premium" required>
+                        <option value="" disabled {% if not result %}selected{% endif %}>Choose student...</option>
+                        {% for s in students %}
+                            <option value="{{ s.id }}" {% if result and result.student_id == s.id %}selected{% endif %}>
+                                {{ s.name }} ({{ s.class_ if s.class_ else 'Unassigned Class' }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Subject -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold" for="subject">Subject Name</label>
+                    <input type="text" id="subject" name="subject" class="form-control form-control-premium" 
+                           value="{{ result.subject if result else '' }}" placeholder="e.g. Mathematics, Science" required>
+                </div>
+
+                <!-- Marks -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold" for="marks">Marks Scored (0 - 100)</label>
+                    <input type="number" id="marks" name="marks" class="form-control form-control-premium" 
+                           value="{{ result.marks if result else '' }}" placeholder="e.g. 85" min="0" max="100" required>
+                    <small class="text-muted">A score of 40 or higher is considered a Pass.</small>
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a href="{{ url_for('academic.results_list') }}" class="btn btn-outline-secondary px-4 py-2">Cancel</a>
+                    <button type="submit" class="btn btn-premium px-4 py-2">
+                        <i class="fa-solid fa-circle-check me-1"></i> Save Exam Grade
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

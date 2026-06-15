@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block title %}Create Announcement{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="glass-panel p-5">
+            <h2 class="fw-bold mb-2 text-dark"><i class="fa-solid fa-pen-nib me-2 text-primary"></i>Compose Announcement</h2>
+            <p class="text-muted mb-4">Post official notices or draft items for class review</p>
+            <hr class="mb-4">
+            
+            <form method="POST">
+                <!-- Title -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold" for="title">Announcement Title</label>
+                    <input type="text" id="title" name="title" class="form-control form-control-premium" placeholder="e.g. End of Semester Examinations Schedule" required>
+                </div>
+
+                <!-- Scope / Target Class -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold" for="class_id">Announcement Target Scope</label>
+                    <select id="class_id" name="class_id" class="form-select form-control-premium" required>
+                        {% if current_user.role.name == 'Principal' %}
+                            <option value="global" selected>Global (All Students & Faculty)</option>
+                            {% for cls in classes %}
+                                <option value="{{ cls.id }}">Class-Specific: {{ cls.class_name }} - {{ cls.section }}</option>
+                            {% endfor %}
+                        {% elif current_user.role.name == 'Teacher' %}
+                            <option value="global">Global (Needs Principal Approval)</option>
+                            {% for cls in classes %}
+                                <option value="{{ cls.id }}" selected>My Class: {{ cls.class_name }} - {{ cls.section }} (Auto-approved)</option>
+                            {% endfor %}
+                        {% elif current_user.role.name == 'Student Representative' %}
+                            {% for cls in classes %}
+                                <option value="{{ cls.id }}" selected>My Class: {{ cls.class_name }} - {{ cls.section }} (Needs Teacher/Principal Approval)</option>
+                            {% endfor %}
+                        {% endif %}
+                    </select>
+                </div>
+
+                <!-- Content -->
+                <div class="mb-4">
+                    <label class="form-label fw-semibold" for="content">Message Body Content</label>
+                    <textarea id="content" name="content" rows="6" class="form-control form-control-premium" placeholder="Type announcement details here..." required></textarea>
+                </div>
+
+                <!-- Workflow Notification -->
+                <div class="alert alert-info border-0 shadow-sm rounded-3 d-flex align-items-center mb-4">
+                    <i class="fa-solid fa-circle-info fs-4 me-3"></i>
+                    <div>
+                        <strong>Approval Workflow Notice:</strong> 
+                        {% if current_user.role.name == 'Principal' %}
+                            Your announcement will be published instantly.
+                        {% elif current_user.role.name == 'Teacher' %}
+                            Class-specific announcements publish immediately. Global announcements require Principal authorization.
+                        {% else %}
+                            Your draft will be submitted to your Class Teacher or the Principal for approval before publishing.
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Submit Buttons -->
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a href="{{ url_for('announcements.list_announcements') }}" class="btn btn-outline-secondary px-4 py-2">Cancel</a>
+                    <button type="submit" class="btn btn-premium px-4 py-2">
+                        <i class="fa-solid fa-paper-plane me-1"></i> Send Announcement
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

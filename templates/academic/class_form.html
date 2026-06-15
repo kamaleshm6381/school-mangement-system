@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Class Details Form{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="glass-panel p-5">
+            <h2 class="fw-bold mb-4 text-dark">
+                {% if cls %}
+                    <i class="fa-solid fa-school me-2 text-primary"></i>Edit Class: {{ cls.class_name }} - {{ cls.section }}
+                {% else %}
+                    <i class="fa-solid fa-plus me-2 text-primary"></i>Add New Class
+                {% endif %}
+            </h2>
+            <hr class="mb-4">
+            
+            <form method="POST">
+                <div class="row g-3 mb-4">
+                    <div class="col-md-8">
+                        <label class="form-label fw-semibold" for="class_name">Class Name</label>
+                        <input type="text" id="class_name" name="class_name" class="form-control form-control-premium" 
+                               value="{{ cls.class_name if cls else '' }}" placeholder="e.g. Grade 10 Mathematics" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold" for="section">Section</label>
+                        <input type="text" id="section" name="section" class="form-control form-control-premium" 
+                               value="{{ cls.section if cls else '' }}" placeholder="e.g. A, B, C" required>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-semibold" for="teacher_id">Assign Class Teacher</label>
+                    <select id="teacher_id" name="teacher_id" class="form-select form-control-premium">
+                        <option value="0" {% if not cls or not cls.teacher_id %}selected{% endif %}>None (Unassigned)</option>
+                        {% for teacher in teachers %}
+                            <option value="{{ teacher.id }}" {% if cls and cls.teacher_id == teacher.id %}selected{% endif %}>
+                                {{ teacher.name }} (Subject: {{ teacher.subject }})
+                            </option>
+                        {% endfor %}
+                    </select>
+                    <small class="text-muted">A class teacher can manage attendance registers and grades for the class.</small>
+                </div>
+
+                <!-- Buttons -->
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a href="{{ url_for('academic.classes_list') }}" class="btn btn-outline-secondary px-4 py-2">Cancel</a>
+                    <button type="submit" class="btn btn-premium px-4 py-2">
+                        <i class="fa-solid fa-circle-check me-1"></i> Save Class Record
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

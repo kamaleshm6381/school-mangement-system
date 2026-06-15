@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="glass-panel p-5">
+            <h2 class="fw-bold mb-4 text-dark"><i class="fa-solid fa-id-card me-2 text-primary"></i>My Profile</h2>
+            <div class="row g-4 align-items-center">
+                <div class="col-md-4 text-center">
+                    <div class="bg-secondary bg-gradient text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 120px; height: 120px;">
+                        <i class="fa-solid fa-user-circle" style="font-size: 6rem;"></i>
+                    </div>
+                    <h4 class="mt-3 fw-bold">{{ user.username }}</h4>
+                    <span class="badge bg-primary fs-6">{{ user.role.name }}</span>
+                </div>
+                
+                <div class="col-md-8">
+                    <table class="table table-borderless">
+                        <tbody>
+                            <tr>
+                                <th class="text-muted" style="width: 35%;">Username:</th>
+                                <td class="fw-semibold">{{ user.username }}</td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Account Status:</th>
+                                <td><span class="badge bg-success">Active</span></td>
+                            </tr>
+                            <tr>
+                                <th class="text-muted">Created On:</th>
+                                <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            </tr>
+                            {% if user.teacher_profile %}
+                                <tr>
+                                    <th class="text-muted">Teacher Name:</th>
+                                    <td class="fw-semibold">{{ user.teacher_profile.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Subject Taught:</th>
+                                    <td>{{ user.teacher_profile.subject }}</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Contact Phone:</th>
+                                    <td>{{ user.teacher_profile.phone }}</td>
+                                </tr>
+                            {% elif user.student_profile %}
+                                <tr>
+                                    <th class="text-muted">Student Name:</th>
+                                    <td class="fw-semibold">{{ user.student_profile.name }}</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Age:</th>
+                                    <td>{{ user.student_profile.age }}</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Department:</th>
+                                    <td>{{ user.student_profile.department }}</td>
+                                </tr>
+                                <tr>
+                                    <th class="text-muted">Class & Section:</th>
+                                    <td>{{ user.student_profile.class_ if user.student_profile.class_ else 'Not Assigned' }}</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
